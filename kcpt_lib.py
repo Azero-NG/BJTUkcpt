@@ -67,7 +67,7 @@ def login(username='',password=''):
     return s
 def loginByMis(username='',password=''):
     s = requests.session()
-    a = s.get("https://mis.bjtu.edu.cn/", verify=False)
+    a = s.get("https://mis.bjtu.edu.cn/", verify=True)
     doc = pq(a.text)
     data = {doc("input[value]")[0].attrib['name']: doc("input[value]")[0].attrib['value'],
             doc("input[value]")[1].attrib['name']: doc("input[value]")[1].attrib['value'], 'loginname': username,
