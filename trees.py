@@ -3,7 +3,14 @@ import re
 import os
 import math
 s=''
-
+def humanToByte(size):
+    bytes = 0
+    m = ['B','K','M','G','T','P']
+    p = re.compile('(\d+)(\D)')
+    for i in p.findall(size):
+        if i[1] in m:
+             bytes+=int(i[0])*1024**(m.index(i[1]))
+    return bytes
 def convertBytes(bytes, lst=None):
     if lst is None:
         lst=['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB']
