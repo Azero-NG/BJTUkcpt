@@ -31,7 +31,7 @@ def get_all(i):
     print(root.name)
 #登录
 
-s = kcpt_lib.login(args.username,args.password)
+s = kcpt_lib.loginByMis(args.username,args.password)
 trees.s = s
 #获取课程数据
 for i in kcpt_lib.GetLesson(s):
