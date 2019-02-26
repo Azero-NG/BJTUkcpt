@@ -13,11 +13,13 @@ def GetLesson(s):
             h[x]=list(h[x])
             h[x][0]=r'http://cc.bjtu.edu.cn:81/meol/common/script/listview.jsp?acttype=enter&folderid=0&lid='+h[x][0]
         return h
+
 def GetCourseName(courseId,s):
     r=s.get('http://cc.bjtu.edu.cn:81/meol/jpk/course/layout/newpage/index.jsp?courseId='+str(courseId))
     result=re.findall(pat,r.text)
     if(len(result)>=1):
         return re.sub(r'\s','',result[0])
+
 def GetCourseProfile(courseId=''):
     pattern=r'<p class="offCon" style="display:none;">([\s\S]*?)</p>'
     try:
@@ -35,6 +37,7 @@ class kcptfile:
     file_name=''
     father_dir=''
     s=requests.Session
+    
     def download(s):
         res=s.get(kcptfile.link)
         with open(father_dir+res.headers['Content-Disposition'][22:-1],'w') as f:
@@ -42,8 +45,9 @@ class kcptfile:
 
 
 class kcptdir:
-    a={'name':'','link':'','children':[],'father':'','files':[]}
-    name='6'
+    a = {'name':'','link':'','children':[],'father':'','files':[]}
+    name = '6'
+
     def fillchildren(s):
         ##文件名
         d=s.get(kcptfile.a['link'])
@@ -54,17 +58,20 @@ class kcptdir:
         sou=re.findall(r'<a href="(.*?)" target="_blank"\s*?title="">(.*?)</a>',table)
         for x in sou:
             kcptfile.a['files'].append(x)
+
     def __init__(self,name='',link='',children='',father='',s=''):
         kcptfile.a['name']=name
         kcptfile.a['link']=link
         kcptfile.a['children']=children
         kcptfile.a['father']=father
         kcptfile.fillchildren(s)
+
 def login(username='',password=''):
     s=requests.session()
     s.get('http://jwc.bjtu.edu.cn:82/LoginAjax.aspx?username='+ username + '&password=' + password +'&type=1')
     s.get('http://jwc.bjtu.edu.cn:82/NoMasterJumpPage.aspx?URL=jwcKcpt&FPC=page:jwcKcpt')
     return s
+
 def loginByMis(username='',password=''):
     s = requests.session()
     a = s.get("https://mis.bjtu.edu.cn/", verify=True)

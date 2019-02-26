@@ -2,7 +2,11 @@ import requests
 import re
 import os
 import math
+from collections import defaultdict
+import threading
 s=''
+dir_locks = threading.Lock()
+
 def humanToByte(size):
     bytes = 0
     m = ['B','K','M','G','T','P']
@@ -11,17 +15,23 @@ def humanToByte(size):
         if i[1] in m:
              bytes+=int(i[0])*1024**(m.index(i[1]))
     return bytes
+
 def convertBytes(bytes, lst=None):
     if lst is None:
         lst=['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB']
-    i = int(math.floor( # 舍弃小数点，取小
-             math.log(bytes, 1024) # 求对数(对数：若 a**b = N 则 b 叫做以 a 为底 N 的对数)
-            ))
+    if bytes==0:
+        i = 0
+    else:
+        i = int(math.floor( # 舍弃小数点，取小
+                math.log(bytes, 1024) # 求对数(对数：若 a**b = N 则 b 叫做以 a 为底 N 的对数)
+                ))
 
     if i >= len(lst):
         i = len(lst) - 1
     return ('%.2f' + " " + lst[i]) % (bytes/math.pow(1024, i))
+
 class tree:
+
     def __init__(self, l, name, d_f):
         self.children = []
         self.link = l
@@ -29,6 +39,7 @@ class tree:
         self.parent = None
         self.name = name
         self.download_list = [] # link ,name,path,dir
+
     def add_child(self,child):
         self.children.append(child)
 
@@ -74,13 +85,13 @@ class tree:
 def download_list(i,maxsize=102400000*3):
     if i[3] == 0:
         path = i[2]+i[1]
-        if not(os.path.exists(path)):
-
-            os.makedirs(i[2]+i[1])
+        with dir_locks:
+            if not(os.path.exists(path)):
+                os.makedirs(i[2]+i[1])
     else:
-        if not(os.path.exists(i[2])):
-            os.makedirs(i[2])
-
+        with dir_locks:
+            if not(os.path.exists(i[2])):
+                os.makedirs(i[2])
         with s.get(i[0], stream=True) as r:
             if 'Content-Disposition' in r.headers.keys():
                 i[1] = re.findall('"(.*)"', r.headers['Content-Disposition'].encode('latin1').decode('gbk'))[0]
@@ -105,4 +116,4 @@ def download_list(i,maxsize=102400000*3):
                         #print('%lf%%'%(k/content_size*100),end='\r',flush=True)
             except KeyError:
                 print(i[0])
-        print(i[1]+'下载完成'+"("+convertBytes(content_size)+")")
+        # print(i[1]+'下载完成'+"("+convertBytes(content_size)+")")

@@ -62,7 +62,7 @@ def download(i):
     lock.acquire()
     global num
     num += 1
-    print('%d/%d' % (num, sum))
+    print('%d/%d' % (num, sum), i[1])
     lock.release()
 pool.map(download,download_list)
 
